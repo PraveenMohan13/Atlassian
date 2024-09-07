@@ -1,0 +1,88 @@
+362. Design Hit Counter
+The problem at hand is designing a system that keeps track of the number of hits (or actions/events) that occur on a resource in the last 5 minutes. Importantly, the system is expected to handle hits in a chronological order, meaning that the timestamps for these hits are always increasing. The design should consist of a hit counter that can accept a new hit at a specific timestamp, with timestamps measured in seconds, and retrieve the total count of hits that occurred in the past 5 minutes from any given timestamp.
+
+To summarize, the HitCounter class should provide two primary functionalities:
+
+hit(int timestamp): Record a new hit at the given timestamp.
+getHits(int timestamp): Fetch the number of hits in the last 300 seconds (5 minutes) from the given timestamp.
+This counter could be used, for example, on a website to track the number of hits to a server, on an application to monitor the number of occurrences of a particular event, or any similar use-case where such time-bound counting is required.
+===========================================original==============================================================================================
+Design a hit counter which counts the number of hits received in the past 5 minutes.
+
+Each function accepts a timestamp parameter (in seconds granularity) and you may assume that calls are being made to the system in chronological order (ie, the timestamp is monotonically increasing). You may assume that the earliest timestamp starts at 1.
+
+It is possible that several hits arrive roughly at the same time.
+
+Example:
+
+HitCounter counter = new HitCounter();
+
+// hit at timestamp 1. counter.hit(1);
+
+// hit at timestamp 2. counter.hit(2);
+
+// hit at timestamp 3. counter.hit(3);
+
+// get hits at timestamp 4, should return 3. counter.getHits (4);
+
+// hit at timestamp 300. counter.hit(300);
+
+// get hits at timestamp 300, should return 4. counter.getHits (300);
+
+// get hits at timestamp 301, should return 3. counter.getHits (301);
+================================================================================================
+#include <iostream>
+#include <unordered_map>
+using namespace std;
+class HitCounter {
+private:
+    unordered_map<int, int> hitCounts;
+
+public:
+    HitCounter() {
+    }
+
+
+    void hit(int timestamp) {
+        hitCounts[timestamp]++;
+    }
+
+    int getHits(int timestamp) {
+        int hits = 0; 
+        for (auto &entry : hitCounts) {
+            if (timestamp - entry.first < 300) { 
+                hits += entry.second;
+            }
+        }
+        return hits;
+    }
+};
+
+int main() {
+    HitCounter hitCounter;
+    int choice = 0, timestamp = 0;
+
+    do {
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cin >> timestamp;
+                hitCounter.hit(timestamp);
+                cout << "Hit recorded at timestamp: " << timestamp << "\n";
+                break;
+            case 2:
+                cin >> timestamp;
+                cout << "Number of hits in the last 5 minutes: " << hitCounter.getHits(timestamp) << "\n";
+                break;
+            case 3:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice, please try again.\n";
+                break;
+        }
+    } while (choice != 3);
+
+    return 0;
+}
