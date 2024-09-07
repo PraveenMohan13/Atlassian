@@ -1,0 +1,121 @@
+366. Find Leaves of Binary Tree
+Given the root of a binary tree, collect a tree's nodes as if you were doing this:
+
+Collect all the leaf nodes.
+Remove all the leaf nodes.
+Repeat until the tree is empty.
+Input: root = [1,2,3,4,5]
+Output: [[4,5,3],[2],[1]]
+Explanation:
+[[3,5,4],[2],[1]] and [[3,4,5],[2],[1]] are also considered correct answers since per each level it does not matter the order on which elements are returned.
+
+Example 2:
+
+Input: root = [1] Output: [[1]]
+
+Constraints:
+
+The number of nodes in the tree is in the range [1, 100].
+-100 <= Node.val <= 100
+Solution
+Brute Force
+We can simply implement a solution that does what the problem asks one step at a time.
+
+First, we will run a DFS to find all leaf nodes. Then, we'll remove them from the tree. We'll keep repeating that process until the tree is empty.
+
+Let N denote the number of nodes in the tree.
+
+In the worst scenario (line graph), we will repeat this process 
+O(N) times and obtain a time complexity of 
+
+O(N^2).
+
+Time Complexity
+Our algorithm is a DFS which runs in 
+O(N).
+Time Complexity: 
+O(N)
+Space Complexity
+Since we return 
+O(N) integers, our space complexity is O(N).
+Space Complexity: 
+O(N)
+=========================================================================
+#include<iostream>
+#include<vector>
+#include<queue>
+#include<stack>
+#include<algorithm>
+
+using namespace std;
+
+class Solution {
+    vector<vector<int>> ans;  
+public:
+    int dfs(TreeNode* u) {    
+        if (u == nullptr) {
+            return -1;
+        }
+        int leftLevel = dfs(u->left);
+        int rightLevel = dfs(u->right);
+        int currentLevel = max(leftLevel, rightLevel) + 1;  
+        while (ans.size() <= currentLevel) {  
+            ans.push_back({});
+        }
+        ans[currentLevel].push_back(u->val);
+        return currentLevel;
+    }
+
+    vector<vector<int>> findLeaves(TreeNode* root) {
+        dfs(root);
+        return ans;
+    }
+};
+
+TreeNode* buildTreeFromLevelOrder(const vector<int>& nodes) {
+    if (nodes.empty() || nodes[0] == -1) return nullptr;
+
+    TreeNode* root = new TreeNode(nodes[0]);
+    queue<TreeNode*> q;
+    q.push(root);
+    
+    int i = 1;
+    while (!q.empty() && i < nodes.size()) {
+        TreeNode* current = q.front();
+        q.pop();
+
+        // Left child
+        if (i < nodes.size() && nodes[i] != -1) {
+            current->left = new TreeNode(nodes[i]);
+            q.push(current->left);
+        }
+        i++;
+
+        // Right child
+        if (i < nodes.size() && nodes[i] != -1) {
+            current->right = new TreeNode(nodes[i]);
+            q.push(current->right);
+        }
+        i++;
+    }
+
+    return root;
+}
+
+int main() {
+    vector<int> nodes = {1, 2, 3, 4, 5};  
+    TreeNode* root = buildTreeFromLevelOrder(nodes);
+
+    Solution solution;
+    vector<vector<int>> leaves = solution.findLeaves(root);
+
+    cout << "Leaves of the tree by level:" << endl;
+    for (int i = 0; i < leaves.size(); ++i) {
+        for (int j = 0; j < leaves[i].size(); ++j) {
+            cout << leaves[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
