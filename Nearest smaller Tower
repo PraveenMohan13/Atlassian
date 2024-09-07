@@ -1,0 +1,109 @@
+Question 4: Nearest smaller Tower
+Given an array representing the heights of towers, the task is to find, for each tower, the index of the nearest tower that is shorter than it.
+The search for a shorter tower can be performed by looking to the left and right sides of each tower.
+
+The following rules apply:
+
+If there are two or more smaller towers at the same distance from the current tower, choose the tower with the smallest height.
+If two towers have the same height, choose the one with the smaller index.
+Example 1:
+
+Input : Array: [1, 3, 2]
+Output : Indexes: [-1, 0, 0]
+Explanation:
+For the tower at index 0, there is no tower shorter than it, so the output is -1.
+
+For the tower at index 1 (height 3), there are two towers (heights 1 and 2) at the same distance. Following the rules, we choose the tower with the smallest height, which is at index 0.
+For the tower at index 2 (height 2), the only tower shorter than it is at index 0.
+Therefore, the final output is the array of indexes: [-1, 0, 0].
+
+Example 2:
+
+Input : Array : [4, 8, 3, 5, 3]
+Output : Indexes: [2, 2, -1, 2, -1]
+Explanation:
+
+For the tower at index 0 (height 4), the nearest tower shorter than it is at index 2.
+For the tower at index 1 (height 8), there are two towers (heights 4 and 3) at the same distance.
+Following the rules, we choose the tower at index 2.
+For the tower at index 2 (height 3), there is no tower shorter than it.
+For the tower at index 3 (height 5), there are two towers (heights 3 and 3) at the same distance.
+Following the rules, we choose the tower at index 2 because it has a smaller index.
+For the tower at index 4 (height 3), there is no tower shorter than it.
+Therefore, the final output is the array of indexes: [2, 2, -1, 2, -1].
+============================================================================================================
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<cmath>
+using namespace std;
+class TowerFinder
+{
+public:
+    static vector<int> findNearestShorterTower(vector<int> &towerHeights)
+    {
+        int n = towerHeights.size();
+        stack<int> leftStack, rightStack;
+        vector<int> result(n, -1);
+
+        for (int i = 0; i < n; i++)
+        {
+            while (!leftStack.empty() && towerHeights[leftStack.top()] >= towerHeights[i])
+            {
+                leftStack.pop();
+            }
+
+            if (!leftStack.empty())
+            {
+                result[i] = leftStack.top();
+            }
+
+            leftStack.push(i);
+        }
+
+        for (int i = n - 1; i >= 0; i--)
+        {
+            while (!rightStack.empty() && towerHeights[rightStack.top()] >= towerHeights[i])
+            {
+                rightStack.pop();
+            }
+
+            if (!rightStack.empty())
+            {
+                if (result[i] != -1)
+                {
+                    if (abs(result[i] - i) == abs(rightStack.top() - i))
+                    {
+                        if (towerHeights[result[i]] > towerHeights[rightStack.top()])
+                            result[i] = rightStack.top();
+                    }
+                    else if (abs(result[i] - i) > abs(rightStack.top() - i))
+                        result[i] = rightStack.top();
+                }
+                else
+                    result[i] = rightStack.top();
+            }
+
+            rightStack.push(i);
+        }
+
+        return result;
+    }
+};
+
+int main()
+{
+    int n;
+    cin >> n;
+
+    vector<int> towerHeights(n);
+    for (int i = 0; i < n; ++i)
+        cin >> towerHeights[i];
+
+    vector<int> ans = TowerFinder::findNearestShorterTower(towerHeights);
+
+    for (int i = 0; i < ans.size(); i++)
+        cout << ans[i] << " ";
+
+    return 0;
+}
